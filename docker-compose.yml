@@ -49,6 +49,21 @@ services:
     ports:
       - "8082:8082"
 
+  person2:
+    image: person:1.0.0-SNAPSHOT
+    hostname: person
+    links:
+      - discovery
+      - config
+      - postgres
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+       SPRING_PROFILES_ACTIVE: docker
+       PERSON_SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+
   some:
     image: some:1.0.0-SNAPSHOT
     hostname: some
@@ -61,6 +76,20 @@ services:
        SPRING_PROFILES_ACTIVE: docker
     ports:
       - "8083:8083"
+
+  some2:
+    image: some:1.0.0-SNAPSHOT
+    hostname: some
+    links:
+      - discovery
+      - config
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+       SPRING_PROFILES_ACTIVE: docker
+       SOME_SERVER_PORT: 8084
+    ports:
+      - "8084:8084"
 
   ui:
     image: ui:1.0.0-SNAPSHOT

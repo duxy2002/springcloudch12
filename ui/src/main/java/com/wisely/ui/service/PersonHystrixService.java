@@ -20,7 +20,7 @@ public class PersonHystrixService {
 	}
 	
 	public List<Person> fallbackSave(String name){ 
-		List<Person> list = new ArrayList<>();
+		List<Person> list = new ArrayList<Person>();
 		Person p = new Person(name+"没有保存成功，Person Service 故障");
 		list.add(p);
 		return list;

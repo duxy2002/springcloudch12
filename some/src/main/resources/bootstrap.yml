@@ -9,7 +9,9 @@ spring:
         service-id: CONFIG
 eureka:
   instance:
-    non-secure-port: ${server.port:8083}
+    non-secure-port: ${some.server.port:8083}
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
   client:
     service-url:
       defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/

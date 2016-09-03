@@ -4,7 +4,7 @@ spring:
 
 eureka:
   instance:
-    non-secure-port: ${server.port:80}
+    non-secure-port: ${server.port:801}
   client:
     service-url:
       defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/
