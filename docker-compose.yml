@@ -35,6 +35,18 @@ services:
     ports:
       - "8888:8888"
 
+  api-gateway:
+    image: "api-gateway:1.0.0-SNAPSHOT"
+    hostname: api-gateway
+  #  name: config
+    links:
+      - discovery
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+    ports:
+      - "5555:5555"
+
   person:
     image: person:1.0.0-SNAPSHOT
     hostname: person

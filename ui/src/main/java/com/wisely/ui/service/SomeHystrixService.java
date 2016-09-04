@@ -14,7 +14,8 @@ public class SomeHystrixService {
 
 	@HystrixCommand(fallbackMethod = "fallbackSome") //2
 	public String getSome() {
-		return restTemplate.getForObject("http://some/getsome", String.class);
+		//return restTemplate.getForObject("http://some/getsome", String.class);
+		return restTemplate.getForObject("http://api-gateway/getsome", String.class);
 	}
 	
 	public String fallbackSome(){ 

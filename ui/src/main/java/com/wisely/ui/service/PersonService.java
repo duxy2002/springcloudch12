@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.wisely.ui.domain.Person;
 
-@FeignClient("person")
+//@FeignClient("person")
+@FeignClient("api-gateway")
 public interface PersonService {
 	 @RequestMapping(method = RequestMethod.POST, value = "/save",
 	            produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

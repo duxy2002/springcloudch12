@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: api-gateway
+
+# routes to serviceId
+zuul:
+  routes:
+    api-a:
+      path: /getsome
+      serviceId: some
+    api-b:
+      path: /save
+      serviceId: person
+
+eureka:
+  instance:
+    non-secure-port: ${some.server.port:5555}
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+  client:
+    service-url:
+      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/
