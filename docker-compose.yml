@@ -51,7 +51,8 @@ services:
 
   person2:
     image: person:1.0.0-SNAPSHOT
-    hostname: person
+    mem_limit: 1000000000
+    hostname: person2
     links:
       - discovery
       - config
@@ -79,7 +80,7 @@ services:
 
   some2:
     image: some:1.0.0-SNAPSHOT
-    hostname: some
+    hostname: some2
     links:
       - discovery
       - config
