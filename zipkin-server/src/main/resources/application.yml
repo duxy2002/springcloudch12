@@ -1,0 +1,9 @@
+server:
+  port: 9411
+
+spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: user
+    password: secret

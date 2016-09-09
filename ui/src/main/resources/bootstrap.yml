@@ -5,6 +5,11 @@ spring:
 eureka:
   instance:
     non-secure-port: ${server.port:801}
+    hostname: ui
+    metadata-map:
+      cluster: MAIN
+    leaseRenewalIntervalInSeconds: 10
   client:
+    registryFetchIntervalSeconds: 5
     service-url:
-      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/
+      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/,http://${eureka.host:localhost}:${eureka.port:8762}/eureka/  #配置eureka服务地址

@@ -1,6 +1,10 @@
+#【注】建议采用bootstrap+application组合形式，一般bootstrap配置工程不可变参数，且在启动时需要设定的内容，application配置可变参数
 spring:
   application:
     name: api-gateway
+  sleuth:
+    sampler:
+      percentage: 1
 
 # routes to serviceId
 zuul:
@@ -19,4 +23,4 @@ eureka:
     leaseExpirationDurationInSeconds: 2
   client:
     service-url:
-      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/
+      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/,http://${eureka.host:localhost}:${eureka.port:8762}/eureka/

@@ -1,4 +1,13 @@
 version: '2'
+
+networks:
+
+  demo-net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+
+
 services:
   postgresdb:
     image: busybox
@@ -16,19 +25,64 @@ services:
     environment:
       PG_PASSWORD: postgres
 
+  rabbitmq:
+    image: rabbitmq
+    #hostname: rabbitmq
+    container_name: rabbitmq
+    ports:
+     - "5672:5672"
+     - "15672:15672"
+     - "25672:25672"
+     - "5671:5671"
+     - "4369:4369"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: secret
+
   discovery:
     image: "discovery:1.0.0-SNAPSHOT"
     hostname: discovery
   #  name: discovery
+    environment:
+      EUREKA_HOST: discovery2
+      EUREKA_PORT: 8762
+      DISCOVERY_SERVER_PORT: 8761
     ports:
      - "8761:8761"
+
+  discovery2:
+    image: "discovery:1.0.0-SNAPSHOT"
+    hostname: discovery2
+  #  name: discovery
+    links:
+      - discovery
+    environment:
+      EUREKA_HOST: discovery
+      EUREKA_PORT: 8761
+      DISCOVERY_SERVER_PORT: 8762
+    ports:
+     - "8762:8762"
+
+  eureka-client:
+    image: "eureka-client:1.0.0-SNAPSHOT"
+    hostname: eureka-client
+  #  name: config
+    depends_on:
+      - discovery
+      - discovery2
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+    ports:
+      - "9090:9090"
 
   config:
     image: "config:1.0.0-SNAPSHOT"
     hostname: config
   #  name: config
-    links:
+    depends_on:
       - discovery
+      - discovery2
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -39,8 +93,9 @@ services:
     image: "api-gateway:1.0.0-SNAPSHOT"
     hostname: api-gateway
   #  name: config
-    links:
+    depends_on:
       - discovery
+      - discovery2
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -50,10 +105,12 @@ services:
   person:
     image: person:1.0.0-SNAPSHOT
     hostname: person
-    links:
+    depends_on:
       - discovery
+      - discovery2
       - config
       - postgres
+      - rabbitmq
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -65,24 +122,30 @@ services:
     image: person:1.0.0-SNAPSHOT
     mem_limit: 1000000000
     hostname: person2
-    links:
+    depends_on:
       - discovery
+      - discovery2
       - config
+      - person
       - postgres
+      - rabbitmq
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
        SPRING_PROFILES_ACTIVE: docker
        PERSON_SERVER_PORT: 8081
+       PERSON_DDL_AUTO: none
     ports:
       - "8081:8081"
 
   some:
     image: some:1.0.0-SNAPSHOT
     hostname: some
-    links:
+    depends_on:
       - discovery
+      - discovery2
       - config
+      - rabbitmq
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -93,9 +156,11 @@ services:
   some2:
     image: some:1.0.0-SNAPSHOT
     hostname: some2
-    links:
+    depends_on:
       - discovery
+      - discovery2
       - config
+      - rabbitmq
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -107,8 +172,9 @@ services:
   ui:
     image: ui:1.0.0-SNAPSHOT
     hostname: ui
-    links:
+    depends_on:
       - discovery
+      - discovery2
       - config
       - person
       - some
@@ -122,8 +188,9 @@ services:
   monitor:
     image: monitor:1.0.0-SNAPSHOT
     hostname: monitor
-    links:
+    depends_on:
       - discovery
+      - discovery2
       - config
       - person
       - some
@@ -134,3 +201,12 @@ services:
        SPRING_PROFILES_ACTIVE: docker
     ports:
       - "8989:8989"
+
+  zipkin-server:
+    image: zipkin-server:1.0.0-SNAPSHOT
+    #hostname: monitor
+    depends_on:
+      - rabbitmq
+    ports:
+      - "9411:9411"
+    restart: always

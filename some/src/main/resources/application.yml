@@ -1,2 +1,11 @@
 server:
   port: ${some.server.port:8083}
+spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: user
+    password: secret
+  sleuth:
+    sampler:
+      percentage: 1

@@ -1,2 +1,8 @@
 server:
   port: ${gateway.server.port:5555}
+spring:
+  application:
+    name: api-gateway
+  sleuth:
+    sampler:
+      percentage: 1

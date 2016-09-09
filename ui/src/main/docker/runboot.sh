@@ -1,2 +1,2 @@
 sleep 10
-java -Djava.security.egd=file:/dev/./urandom -jar /app/app.jar
+java -Xms128m -Xmx512m -XX:MaxPermSize=256m  -Djava.security.egd=file:/dev/./urandom -jar /app/app.jar

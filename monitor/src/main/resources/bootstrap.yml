@@ -2,9 +2,18 @@ spring:
   application:
     name: monitor
 
+turbine:
+  #配置需要聚合的应用
+  appConfig: ui
+  aggregator:
+    #turbine需要聚合的集群名称 通过 http://localhost:9090/turbine.stream?cluster=MAIN 访问
+    clusterConfig: MAIN
+  #获取集群名表达式，这里表示获取元数据中的cluster数据，在node01、node02为配置对应信息
+  clusterNameExpression: metadata['cluster']
+
 eureka:
   instance:
     nonSecurePort: ${server.port:8989}
   client:
     serviceUrl:
-      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/
+      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/,http://${eureka.host:localhost}:${eureka.port:8762}/eureka/
