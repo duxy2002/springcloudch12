@@ -138,22 +138,22 @@ services:
     ports:
       - "8888:8888"
 
-#  config2:
-#    image: "config:1.0.0-SNAPSHOT"
-##    networks:
-##      - demo-net
-#    hostname: config
-#  #  name: config
-#    depends_on:
-#      - discovery
-#      - discovery2
-#      - config
-#    environment:
-#      EUREKA_HOST: discovery
-#      EUREKA_PORT: 8761
-#      CONFIG_SERVER_PORT: 8889
-#    ports:
-#      - "8889:8889"
+  config2:
+    image: "config:1.0.0-SNAPSHOT"
+    networks:
+      - demo-net
+    hostname: config2
+  #  name: config
+    depends_on:
+      - discovery
+      - discovery2
+      - config
+    environment:
+      EUREKA_HOST: discovery
+      EUREKA_PORT: 8761
+      CONFIG_SERVER_PORT: 8889
+    ports:
+      - "8889:8889"
 
   api-gateway:
     image: "api-gateway:1.0.0-SNAPSHOT"
@@ -200,7 +200,7 @@ services:
       - discovery
       - discovery2
       - config
-#      - config2
+      - config2
       - postgres
       - rabbitmq
       - logstash
@@ -221,7 +221,7 @@ services:
       - discovery
       - discovery2
       - config
-#      - config2
+      - config2
       - person
       - postgres
       - rabbitmq
@@ -244,7 +244,7 @@ services:
       - discovery
       - discovery2
       - config
-#      - config2
+      - config2
       - rabbitmq
       - logstash
     environment:
@@ -263,7 +263,7 @@ services:
       - discovery
       - discovery2
       - config
-#      - config2
+      - config2
       - rabbitmq
       - logstash
     environment:
@@ -283,7 +283,7 @@ services:
       - discovery
       - discovery2
       - config
-#      - config2
+      - config2
       - api-gateway
       - api-gateway2
       - person
@@ -306,7 +306,7 @@ services:
       - discovery
       - discovery2
       - config
-#      - config2
+      - config2
       - person
       - some
       - ui
