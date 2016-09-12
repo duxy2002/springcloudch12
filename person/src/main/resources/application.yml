@@ -3,6 +3,8 @@ server:
  
 
 spring:
+  application:
+    name: person
   jpa:
     hibernate:
       ddl-auto: ${person.ddl.auto:update}

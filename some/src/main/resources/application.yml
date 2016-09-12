@@ -9,3 +9,5 @@ spring:
   sleuth:
     sampler:
       percentage: 1
+  application:
+    name: some

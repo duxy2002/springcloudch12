@@ -6,4 +6,4 @@
 #          search-locations: classpath:/config #1
 
 server:
-  port: 8888
+  port: ${config.server.port:8888}

@@ -9,14 +9,52 @@ networks:
 
 
 services:
+
+  elasticsearch:
+    image: elasticsearch
+#    networks:
+#      - demo-net
+    container_name: elasticsearch
+    volumes:
+      - /opt/springboot/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  logstash:
+    image: logstash
+#    networks:
+#      - demo-net
+    hostname: logstash
+    container_name: logstash
+    command: logstash -e 'input { udp { port => 4560 codec => json } } output { elasticsearch { hosts => "elasticsearch:9200" } }'
+    ports:
+      - 4560:4560/udp
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: kibana
+#    networks:
+#      - demo-net
+    container_name: kibana
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+
   postgresdb:
     image: busybox
+#    networks:
+#      - demo-net
     volumes:
       - /var/lib/postgresql/data
 
   postgres:
   #  name: postgres
     image: sameersbn/postgresql:9.5-2
+#    networks:
+#      - demo-net
     hostname: postgres
     volumes_from:
       - postgresdb
@@ -27,6 +65,8 @@ services:
 
   rabbitmq:
     image: rabbitmq
+#    networks:
+#      - demo-net
     #hostname: rabbitmq
     container_name: rabbitmq
     ports:
@@ -41,6 +81,8 @@ services:
 
   discovery:
     image: "discovery:1.0.0-SNAPSHOT"
+#    networks:
+#      - demo-net
     hostname: discovery
   #  name: discovery
     environment:
@@ -52,6 +94,8 @@ services:
 
   discovery2:
     image: "discovery:1.0.0-SNAPSHOT"
+#    networks:
+#      - demo-net
     hostname: discovery2
   #  name: discovery
     links:
@@ -65,6 +109,8 @@ services:
 
   eureka-client:
     image: "eureka-client:1.0.0-SNAPSHOT"
+#    networks:
+#      - demo-net
     hostname: eureka-client
   #  name: config
     depends_on:
@@ -78,6 +124,8 @@ services:
 
   config:
     image: "config:1.0.0-SNAPSHOT"
+#    networks:
+#      - demo-net
     hostname: config
   #  name: config
     depends_on:
@@ -89,13 +137,34 @@ services:
     ports:
       - "8888:8888"
 
+  config2:
+    image: "config:1.0.0-SNAPSHOT"
+#    networks:
+#      - demo-net
+    hostname: config
+  #  name: config
+    depends_on:
+      - discovery
+      - discovery2
+      - config
+    environment:
+      EUREKA_HOST: discovery
+      EUREKA_PORT: 8761
+      CONFIG_SERVER_PORT: 8889
+    ports:
+      - "8889:8889"
+
   api-gateway:
     image: "api-gateway:1.0.0-SNAPSHOT"
+#    networks:
+#      - demo-net
     hostname: api-gateway
   #  name: config
     depends_on:
       - discovery
       - discovery2
+      - rabbitmq
+      - logstash
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -104,6 +173,8 @@ services:
 
   person:
     image: person:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
     hostname: person
     depends_on:
       - discovery
@@ -111,6 +182,7 @@ services:
       - config
       - postgres
       - rabbitmq
+      - logstash
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -120,6 +192,8 @@ services:
 
   person2:
     image: person:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
     mem_limit: 1000000000
     hostname: person2
     depends_on:
@@ -129,6 +203,7 @@ services:
       - person
       - postgres
       - rabbitmq
+      - logstash
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -140,12 +215,15 @@ services:
 
   some:
     image: some:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
     hostname: some
     depends_on:
       - discovery
       - discovery2
       - config
       - rabbitmq
+      - logstash
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -155,12 +233,15 @@ services:
 
   some2:
     image: some:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
     hostname: some2
     depends_on:
       - discovery
       - discovery2
       - config
       - rabbitmq
+      - logstash
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -171,6 +252,8 @@ services:
 
   ui:
     image: ui:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
     hostname: ui
     depends_on:
       - discovery
@@ -178,6 +261,8 @@ services:
       - config
       - person
       - some
+      - rabbitmq
+      - logstash
     environment:
        EUREKA_HOST: discovery
        EUREKA_PORT: 8761
@@ -187,6 +272,8 @@ services:
 
   monitor:
     image: monitor:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
     hostname: monitor
     depends_on:
       - discovery
@@ -204,6 +291,8 @@ services:
 
   zipkin-server:
     image: zipkin-server:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
     #hostname: monitor
     depends_on:
       - rabbitmq

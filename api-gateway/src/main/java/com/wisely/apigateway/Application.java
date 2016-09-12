@@ -19,11 +19,13 @@ import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import java.io.IOException;
 
 @EnableZuulProxy
 @SpringCloudApplication
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 public class Application {
 
     public static void main(String[] args) {

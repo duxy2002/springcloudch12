@@ -1,7 +1,9 @@
 spring:
   application:
     name: ui
-
+  sleuth:
+    sampler:
+      percentage: 1
 eureka:
   instance:
     non-secure-port: ${server.port:801}

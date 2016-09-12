@@ -1,6 +1,9 @@
 spring:
   application:
     name: person
+  sleuth:
+    sampler:
+      percentage: 1
   cloud:
     config:
       enabled: true

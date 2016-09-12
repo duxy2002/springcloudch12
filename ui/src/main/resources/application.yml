@@ -1,6 +1,13 @@
 server:
   port: 801
 spring:
+  application:
+    name: ui
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: user
+    password: secret
   sleuth:
     sampler:
       percentage: 1

@@ -2,11 +2,15 @@ spring:
   application:
     name: some
   cloud:
+    #假如onfig文件变化了，那么用Post方式http://192.168.99.100:8083/bus/refresh，可以让别的module也可以取得最新的Config定义值
     config:
       enabled: true
       discovery:
         enabled: true
         service-id: CONFIG
+  sleuth:
+    sampler:
+      percentage: 1
 eureka:
   instance:
     non-secure-port: ${some.server.port:8083}

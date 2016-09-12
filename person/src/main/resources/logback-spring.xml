@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<!--configuration要素的scan属性设置为true时,表示自动监视配置文件。-->
+<!--scan属性为true时,缺省是1分钟监视1次。我们可以设定configuration要素的scanPeriod属性来设定监视间隔时间。-->
+<!--设定值是毫秒，秒或者别的时间单位。假如没有指定时间单位，那么缺省为毫秒。不过还是加上单位更好。-->
+<!--<configuration scan="true" scanPeriod="30 seconds"> -->
+<!--debug="true":解析logback-spring.xml的时候，假如有发生warn或者Error,那么都输出到Console中去-->
+<configuration scan="false" debug="true">
+
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <springProperty scope="context" name="springAppName" source="spring.application.name"/>
+
+
+  <!--LoggerContext的缺省名称是default。可以通过下面contextName的定义来改变这个名称。-->
+  <contextName>SpringBoot</contextName>
+
+  <!--定义一个变量-->
+  <property name="LOG_HOME" value="/opt/springboot/app-log"/>
+  <property name="projectEnv" value="DEV"/>
+
+  <!-- %clr:给输出内容加上颜色-->
+  <property name="CONSOLE_LOG_PATTERN"
+            value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([${springAppName:-},%X{X-B3-TraceId:-},%X{X-B3-SpanId:-},%X{X-Span-Export:-}]){yellow} %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
+  <!--对于appender要素来说，name属性和class属性是必须指定的。name属性表示这个appender的名称。-->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!--文字串。System.out或者System.err。缺省值是System.out-->
+    <target>System.out</target>
+    <!--withJansi属性变成true的时候，Jansi Labrary有效后，可以在Windows机器上支持ANSI彩色文字。Linux以及Mac OS终端缺省支持ANSI彩色文字-->
+    <withJansi>true</withJansi>
+    <!--encoder要素来说class属性是必须的。-->
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <!--%d{pattern,timezone}:请注意这儿设置为了中国时区-->
+      <!--%.16thread:thread名称超过16位的时候，从名称的开头删除字符，使之保持16位。 -->
+      <!--%-5level："-"表示向左靠齐。整个意思是level不够5位的时候，在右侧加半角空格补足5位。-->
+      <!--
+      <pattern>DEV %d{yyyy/MM/dd HH:mm:ss.SSS,CST} [%.16thread] %highlight(%-5level) %cyan(%logger:%line) - %msg%n</pattern>
+      -->
+      <pattern>${projectEnv} ${CONSOLE_LOG_PATTERN}</pattern>
+      <!--有了Log内容，马上就输出到console-->
+      <immediateFlush>true</immediateFlush>
+    </encoder>
+  </appender>
+
+  <!--与RollingFileAppender协作的有两个重要的SubComponent。一个是RollingPolicy：进行文件的切换处理。-->
+  <!--另外一个是TriggerPolicy:决定什么时候进行切换处理。-->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_HOME}/springboot.log</file>
+    <!--true的时候，log内容被追加到既存文件的末尾。append为false的时候，既存文件的内容被覆盖。缺省值是true-->
+    <append>true</append>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <charset>UTF-8</charset>
+      <!--
+      <pattern>DEV %d{yyyy/MM/dd HH:mm:ss.SSS,CST} %contextName [%.16thread] %-5level %logger:%line - %msg%n</pattern>
+      -->
+      <pattern>${projectEnv} ${CONSOLE_LOG_PATTERN}</pattern>
+      <!--有了Log内容，马上就输出到File中。虽然设置为false，Logger的ThroughPut有可能提高5倍，但是应用程序关闭的时候，-->
+      <!--appender没有关闭，或者有没有写到Disk的Log内容都会消失。-->
+      <immediateFlush>true</immediateFlush>
+      <!--在Log文件的最开始的地方，输出Log的输出形式。-->
+      <outputPatternAsHeader>true</outputPatternAsHeader>
+    </encoder>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!--指定文件切换时的Log文件名。文件的切换周期是从fileNamePattern的指定值推测出来的。-->
+      <!--在指定值中包含文件名和%d变换指示识别信息。在%d变换指示识别信息中可以包含java.text.SimpleDataFormat类中定义的日期时刻的-->
+      <!--Pattern。假如没有指定日期时刻的Pattern，那么就利用yyyy-MM-dd，也就是说是按照日来切换文件的。-->
+      <!--fileNamePattern以.gz或者.zip结尾的时候，支持自动文件压缩。-->
+      <!--%d可以指定多次，但是用于推测文件切换周期的只能有1个，其他的%d都需要加上aux参数-->
+      <fileNamePattern>${LOG_HOME}/%d{yyyy-MM,aux}/springboot.%d.gz</fileNamePattern>
+      <!--指定不删除，一直保持的文件的最大日期数。这里根据指定为30,而根据fileNamePattern信息可以知道是以日为单位切换Log文件，-->
+      <!--所以30天以内的Log文件都为保持，但是超过30天的会被删除。-->
+      <maxHistory>30</maxHistory>
+      <!--true的时候，在appender开始的时候，就把旧的Log文件删除。-->
+      <cleanHistoryOnStart>true</cleanHistoryOnStart>
+    </rollingPolicy>
+    <!--true的时候，不管别的FileAppender，别的JVM，别的机器有没有同时写相同文件，都可以保证正确写文件。缺省值为false。-->
+    <!--但是true的时候，不支持文件压缩，FileAppender的file属性也必须为空。-->
+    <prudent>false</prudent>
+  </appender>
+
+  <!-- Methode 3 -->
+  <appender name="UDP" class="net.logstash.logback.appender.LogstashSocketAppender">
+    <host>logstash</host>
+    <port>4560</port>
+  </appender>
+
+  <!--logger还可以指定additivity=“true” or "false"。当为true时，可以断开logger的继承关系。-->
+  <logger name="com.wisely.ui" level="INFO" >
+
+  </logger>
+
+  <!--root要素只能指定level属性。-->
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="FILE" />
+    <appender-ref ref="UDP" />
+  </root>
+</configuration>

@@ -13,6 +13,7 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @SpringBootApplication
 //通过向eureka服务发现注册的可用的eureka-server，向后端发送请求
@@ -24,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 @EnableCircuitBreaker
 //其中EnableHystrixDashboard注解表示启动对hystrix的监控
 @EnableHystrixDashboard
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 public class UiApplication {
     @Bean
     @LoadBalanced
