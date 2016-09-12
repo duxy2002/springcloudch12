@@ -18,7 +18,7 @@ zuul:
 
 eureka:
   instance:
-    non-secure-port: ${some.server.port:5555}
+    non-secure-port: ${gateway.server.port:5555}
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
   client:

@@ -11,6 +11,11 @@ spring:
   sleuth:
     sampler:
       percentage: 1
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: user
+    password: secret
 eureka:
   instance:
     non-secure-port: ${some.server.port:8083}
