@@ -1,5 +1,5 @@
 server:
-  port: 801
+  port: ${ui.server.port:801}
 spring:
   application:
     name: ui

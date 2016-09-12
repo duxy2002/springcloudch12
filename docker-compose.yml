@@ -297,6 +297,30 @@ services:
     ports:
       - "801:801"
 
+  ui2:
+    image: ui:1.0.0-SNAPSHOT
+    networks:
+      - demo-net
+    hostname: ui2
+    depends_on:
+      - discovery
+      - discovery2
+      - config
+      - config2
+      - api-gateway
+      - api-gateway2
+      - person
+      - some
+      - rabbitmq
+      - logstash
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+       SPRING_PROFILES_ACTIVE: docker
+       UI_SERVER_PORT: 802
+    ports:
+      - "802:802"
+
   monitor:
     image: monitor:1.0.0-SNAPSHOT
     networks:
@@ -327,3 +351,13 @@ services:
     ports:
       - "9411:9411"
     restart: always
+
+  nginx-proxy:
+    build: ./nginx
+    networks:
+      - demo-net
+    ports:
+      - "80:80"
+    depends_on:
+      - ui
+      - ui2
