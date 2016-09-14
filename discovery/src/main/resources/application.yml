@@ -9,12 +9,17 @@ eureka:
   #server:
   #  enableSelfPreservation: true
   instance:
+    prefer-ip-address: true
     hostname: localhost
     leaseRenewalIntervalInSeconds: 1
     metadataMap:
       #表示eureka instance 标识，需要唯一，如果不配置，多个节点最终只会有一个生效
       instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
   client:
+    registerWithEureka: true
+    fetchRegistry: true
+    healthcheck:
+      enabled: true
     service-url:
       # defaultZone表示向自身注册，例子中有三个server节点构成集群，其余两个两个节点也向该端口注册
       defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/
@@ -22,4 +27,6 @@ eureka:
   ##client:
   ##  register-with-eureka: false
   ##  fetch-registry: false
-    
+  server:
+    waitTimeInMsWhenSyncEmpty: 0
+    registrySyncRetries: 0

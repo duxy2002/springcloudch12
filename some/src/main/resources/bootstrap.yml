@@ -8,6 +8,10 @@ spring:
       discovery:
         enabled: true
         service-id: CONFIG
+      failFast: true
+      retry:
+        maxAttempts: 20
+        initialInterval: 3000
   sleuth:
     sampler:
       percentage: 1
@@ -23,4 +27,4 @@ eureka:
     leaseExpirationDurationInSeconds: 2
   client:
     service-url:
-      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/,http://${eureka.host:localhost}:${eureka.port:8762}/eureka/
+      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/,http://${eureka2.host:localhost}:${eureka2.port:8762}/eureka/

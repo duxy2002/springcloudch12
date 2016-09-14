@@ -15,6 +15,16 @@ zuul:
     api-b:
       path: /save
       serviceId: person
+#  host:
+#    connect-timeout-millis: 10000
+#    socket-timeout-millis: 60000
+#
+#hystrix:
+#  command:
+#    default:
+#      execution:
+#        timeout:
+#          enabled: false
 
 eureka:
   instance:
@@ -23,4 +33,4 @@ eureka:
     leaseExpirationDurationInSeconds: 2
   client:
     service-url:
-      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/,http://${eureka.host:localhost}:${eureka.port:8762}/eureka/
+      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/,http://${eureka2.host:localhost}:${eureka2.port:8762}/eureka/

@@ -1,4 +1,5 @@
-FROM java:8
+#FROM java:8
+FROM anapsix/alpine-java
 VOLUME /tmp
 RUN mkdir /app
 ADD zipkin-server-1.0.0-SNAPSHOT.jar /app/app.jar

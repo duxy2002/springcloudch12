@@ -14,4 +14,23 @@ eureka:
   client:
     registryFetchIntervalSeconds: 5
     service-url:
-      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/,http://${eureka.host:localhost}:${eureka.port:8762}/eureka/  #配置eureka服务地址
+      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/,http://${eureka2.host:localhost}:${eureka2.port:8762}/eureka/  #配置eureka服务地址
+# Increase the Hystrix timeout to 60s (globally)
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 120000
+
+#http://stackoverflow.com/questions/32113671/zuulproxy-fails-with-ribboncommand-timed-out-and-no-fallback-available-when-it
+#ribbon:
+#  # Max number of retries on the same server (excluding the first try)
+#  maxAutoRetries: 1
+#  # Max number of next servers to retry (excluding the first server)
+#  MaxAutoRetriesNextServer: 2
+#  # Connect timeout used by Apache HttpClient
+#  ConnectTimeout: 3000
+#  # Read timeout used by Apache HttpClient
+#  ReadTimeout: 5000
