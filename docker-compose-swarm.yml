@@ -1,0 +1,259 @@
+version: '2'
+
+#networks:
+#
+#  demo-net:
+#    driver: bridge
+#    driver_opts:
+#      com.docker.network.enable_ipv6: "false"
+
+
+services:
+
+  elasticsearch:
+    image: elasticsearch
+#    networks:
+#      - demo-net
+    container_name: elasticsearch
+    volumes:
+      - /opt/springboot/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  logstash:
+    image: logstash
+#    networks:
+#      - demo-net
+    hostname: logstash
+    container_name: logstash
+    command: logstash -e 'input { udp { port => 4560 codec => json } } output { elasticsearch { hosts => "elasticsearch:9200" } }'
+    ports:
+      - 4560:4560/udp
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: kibana
+#    networks:
+#      - demo-net
+    container_name: kibana
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+
+  postgresdb:
+    image: busybox
+#    networks:
+#      - demo-net
+    volumes:
+      - /var/lib/postgresql/data
+
+  postgres:
+  #  name: postgres
+    image: sameersbn/postgresql:9.5-2
+#    networks:
+#      - demo-net
+    hostname: postgres
+    volumes_from:
+      - postgresdb
+    ports:
+     - "5432:5432"
+    environment:
+      PG_PASSWORD: postgres
+
+  rabbitmq:
+    image: rabbitmq
+#    networks:
+#      - demo-net
+    #hostname: rabbitmq
+    container_name: rabbitmq
+    ports:
+     - "5672:5672"
+     - "15672:15672"
+     - "25672:25672"
+     - "5671:5671"
+     - "4369:4369"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: secret
+
+  discovery:
+    image: "192.168.99.117:5000/discovery:1.0.0-SNAPSHOT"
+#    networks:
+#      - demo-net
+    hostname: discovery
+  #  name: discovery
+    environment:
+      EUREKA_HOST: discovery2
+      EUREKA_PORT: 8762
+      DISCOVERY_SERVER_PORT: 8761
+    ports:
+     - "8761:8761"
+
+  discovery2:
+    image: "192.168.99.117:5000/discovery:1.0.0-SNAPSHOT"
+#    networks:
+#      - demo-net
+    hostname: discovery2
+  #  name: discovery
+    depends_on:
+      - discovery
+    environment:
+      EUREKA_HOST: discovery
+      EUREKA_PORT: 8761
+      DISCOVERY_SERVER_PORT: 8762
+    ports:
+     - "8762:8762"
+
+
+  config:
+    image: "192.168.99.117:5000/config:1.0.0-SNAPSHOT"
+#    networks:
+#      - demo-net
+    hostname: config
+  #  name: config
+    depends_on:
+      - discovery
+      - discovery2
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+       EUREKA2_HOST: discovery2
+       EUREKA2_PORT: 8762
+       CONFIG_SERVER_PORT: 8888
+    ports:
+      - "8888:8888"
+
+
+  api-gateway:
+    image: "192.168.99.117:5000/api-gateway:1.0.0-SNAPSHOT"
+#    networks:
+#      - demo-net
+    hostname: api-gateway
+  #  name: config
+    depends_on:
+      - discovery
+      - discovery2
+      - config
+      - person
+      - some
+      - rabbitmq
+      - logstash
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+       EUREKA2_HOST: discovery2
+       EUREKA2_PORT: 8762
+    ports:
+      - "5555:5555"
+
+
+  person:
+    image: 192.168.99.117:5000/person:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
+    hostname: person
+    depends_on:
+      - discovery
+      - discovery2
+      - config
+      - postgres
+      - rabbitmq
+      - logstash
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+       EUREKA2_HOST: discovery2
+       EUREKA2_PORT: 8762
+       SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8082:8082"
+
+
+  some:
+    image: 192.168.99.117:5000/some:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
+    hostname: some
+    depends_on:
+      - discovery
+      - discovery2
+      - config
+      - rabbitmq
+      - logstash
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+       EUREKA2_HOST: discovery2
+       EUREKA2_PORT: 8762
+       SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8083:8083"
+
+
+  ui:
+    image: 192.168.99.117:5000/ui:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
+    hostname: ui
+    depends_on:
+      - discovery
+      - discovery2
+      - config
+      - api-gateway
+      - person
+      - some
+      - rabbitmq
+      - logstash
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+       EUREKA2_HOST: discovery2
+       EUREKA2_PORT: 8762
+       SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "801:801"
+
+
+  monitor:
+    image: 192.168.99.117:5000/monitor:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
+    hostname: monitor
+    depends_on:
+      - discovery
+      - discovery2
+      - config
+      - person
+      - some
+      - ui
+    environment:
+       EUREKA_HOST: discovery
+       EUREKA_PORT: 8761
+       EUREKA2_HOST: discovery2
+       EUREKA2_PORT: 8762
+       SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8989:8989"
+
+  zipkin-server:
+    image: 192.168.99.117:5000/zipkin-server:1.0.0-SNAPSHOT
+#    networks:
+#      - demo-net
+    #hostname: monitor
+    depends_on:
+      - rabbitmq
+    ports:
+      - "9411:9411"
+    restart: always
+
+#  nginx-proxy:
+#    build: ./nginx
+##    networks:
+##      - demo-net
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - ui
